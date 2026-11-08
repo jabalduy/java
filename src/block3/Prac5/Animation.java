@@ -10,82 +10,71 @@ import java.io.IOException;
 public class Animation extends JPanel {
 
     private BufferedImage image;
-
     private int currentFrame = 0;
-
-    // Количество кадров в картинке
     private final int frameCount = 4;
+    private boolean spriteSheet;
 
-    private int frameWidth;
-    private int frameHeight;
-
-    public Animation(String imagePath) throws IOException {
-
+    public Animation(String imagePath, boolean spriteSheet) throws IOException {
         image = ImageIO.read(new File(imagePath));
         if (image == null) {
             throw new IOException("Файл не является изображением");
         }
-        if (image.getWidth() < frameCount || image.getWidth() % frameCount != 0) {
-            throw new IOException("Ширина изображения должна делиться на 4");
+
+        this.spriteSheet = spriteSheet;
+        if (spriteSheet && image.getWidth() < frameCount) {
+            throw new IOException("Изображение слишком узкое для четырёх кадров");
         }
 
-        frameWidth = image.getWidth() / frameCount;
-        frameHeight = image.getHeight();
-
-        // Таймер: меняем кадр каждые 200 миллисекунд
         Timer timer = new Timer(200, e -> {
-
-            currentFrame++;
-
-            // После последнего кадра возвращаемся к первому
-            if (currentFrame >= frameCount) {
-                currentFrame = 0;
-            }
-
+            currentFrame = (currentFrame + 1) % frameCount;
             repaint();
         });
-
         timer.start();
     }
 
-
     @Override
     protected void paintComponent(Graphics g) {
-
         super.paintComponent(g);
 
-        if (image != null) {
-
-            // Выбираем нужный кадр из общей картинки
-            BufferedImage frame = image.getSubimage(
-                    currentFrame * frameWidth,
-                    0,
-                    frameWidth,
-                    frameHeight
-            );
-
-            // Рисуем кадр
-            int width = Math.min(frameWidth, getWidth());
-            int height = Math.min(frameHeight, getHeight());
-            if (width <= 0 || height <= 0) return;
-            g.drawImage(frame, (getWidth() - width) / 2,
-                    (getHeight() - height) / 2, width, height, null);
-        }
-    }
-
-
-    public static void main(String[] args) {
-
-        if (args.length == 0) {
-            System.out.println(
-                    "Укажите путь к изображению в аргументах командной строки."
-            );
+        if (image == null || getWidth() <= 0 || getHeight() <= 0) {
             return;
         }
 
+        BufferedImage picture = image;
+
+        if (spriteSheet) {
+            // Четыре кадра подряд. Ширина не обязана делиться на 4.
+            int left = currentFrame * image.getWidth() / frameCount;
+            int right = (currentFrame + 1) * image.getWidth() / frameCount;
+            picture = image.getSubimage(left, 0, right - left, image.getHeight());
+        }
+
+        int width = Math.min(picture.getWidth(), getWidth());
+        int height = Math.min(picture.getHeight(), getHeight());
+
+        // Обычная картинка перемещается, а картинка с кадрами меняет кадр.
+        int x = (getWidth() - width) / 2;
+        if (!spriteSheet) {
+            x += (currentFrame - 1) * 10;
+            x = Math.max(0, Math.min(x, getWidth() - width));
+        }
+
+        int y = (getHeight() - height) / 2;
+        g.drawImage(picture, x, y, width, height, null);
+    }
+
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Укажите путь к изображению в аргументах командной строки.");
+            return;
+        }
+
+        // Для картинки с четырьмя кадрами укажите вторым аргументом sprite.
+        boolean spriteSheet = args.length > 1 && args[1].equalsIgnoreCase("sprite");
+
         SwingUtilities.invokeLater(() -> {
             try {
-                Animation animation = new Animation(args[0]);
+                Animation animation = new Animation(args[0], spriteSheet);
                 JFrame frame = new JFrame("Animation");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(animation);
@@ -99,5 +88,3 @@ public class Animation extends JPanel {
         });
     }
 }
-
-// java Animation.java "/Users/andreytrifonov/Documents/mirea.jpeg"
