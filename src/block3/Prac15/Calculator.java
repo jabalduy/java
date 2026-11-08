@@ -75,6 +75,11 @@ public class Calculator extends JFrame {
             double x2 =
                     Double.parseDouble(number2.getText().trim());
 
+            if (!Double.isFinite(x1) || !Double.isFinite(x2)) {
+                JOptionPane.showMessageDialog(this, "Введите обычные конечные числа!");
+                return;
+            }
+
             double result = 0;
 
             if (operation.equals("+")) {
@@ -104,6 +109,11 @@ public class Calculator extends JFrame {
                 result = x1 / x2;
             }
 
+            if (!Double.isFinite(result)) {
+                JOptionPane.showMessageDialog(this, "Результат слишком большой!");
+                return;
+            }
+
             JOptionPane.showMessageDialog(
                     null,
                     "Result = " + result,
@@ -111,7 +121,7 @@ public class Calculator extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
 
             JOptionPane.showMessageDialog(
                     null,
