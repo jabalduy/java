@@ -91,6 +91,8 @@ public class PasswordCheck extends JFrame {
 
     private void checkPassword() {
 
+        resultLabel.setText("");
+
         String login =
                 loginField.getText().trim();
 
