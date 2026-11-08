@@ -6,409 +6,193 @@ import java.awt.event.*;
 
 public class SimpleCalculator extends JFrame implements ActionListener {
 
-    private JTextField display;
+    private JTextField display = new JTextField();
+    private JButton[] numbers = new JButton[10];
+    private JButton plus = new JButton("+");
+    private JButton minus = new JButton("-");
+    private JButton multiply = new JButton("*");
+    private JButton divide = new JButton("/");
+    private JButton equal = new JButton("=");
+    private JButton clear = new JButton("C");
+    private JButton dot = new JButton(".");
 
-    private JButton[] numberButtons = new JButton[10];
-
-    private JButton addButton;
-    private JButton subButton;
-    private JButton mulButton;
-    private JButton divButton;
-    private JButton equalButton;
-    private JButton clearButton;
-    private JButton dotButton;
-
-    private double num1 = 0;
-    private char operator = '\0';
-
-    // Максимальное количество символов на экране
-    private final int MAX_LENGTH = 15;
-
-    // Показывает, был ли только что получен результат
+    private double firstNumber = 0;
+    private char operation = ' ';
+    private boolean newNumber = false;
     private boolean resultShown = false;
 
-
     public SimpleCalculator() {
-
         super("Calculator");
-
         setSize(350, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Поле вывода
-        display = new JTextField();
-
         display.setEditable(false);
         display.setFont(new Font("Arial", Font.BOLD, 24));
         display.setHorizontalAlignment(JTextField.RIGHT);
-
         add(display, BorderLayout.NORTH);
 
-
-        // Панель кнопок
-        JPanel panel = new JPanel();
-
-        panel.setLayout(new GridLayout(5, 4, 5, 5));
-
-
-        // Цифровые кнопки
+        JPanel panel = new JPanel(new GridLayout(5, 4, 5, 5));
         for (int i = 0; i < 10; i++) {
-
-            numberButtons[i] =
-                    new JButton(String.valueOf(i));
-
-            numberButtons[i].addActionListener(this);
+            numbers[i] = new JButton(String.valueOf(i));
+            numbers[i].addActionListener(this);
         }
 
+        JButton[] otherButtons = {plus, minus, multiply, divide, equal, clear, dot};
+        for (JButton button : otherButtons) {
+            button.addActionListener(this);
+        }
 
-        // Кнопки операций
-        addButton = new JButton("+");
-        subButton = new JButton("-");
-        mulButton = new JButton("*");
-        divButton = new JButton("/");
-
-        equalButton = new JButton("=");
-        clearButton = new JButton("C");
-        dotButton = new JButton(".");
-
-
-        addButton.addActionListener(this);
-        subButton.addActionListener(this);
-        mulButton.addActionListener(this);
-        divButton.addActionListener(this);
-
-        equalButton.addActionListener(this);
-        clearButton.addActionListener(this);
-        dotButton.addActionListener(this);
-
-
-        // Расположение кнопок
-        panel.add(numberButtons[7]);
-        panel.add(numberButtons[8]);
-        panel.add(numberButtons[9]);
-        panel.add(divButton);
-
-        panel.add(numberButtons[4]);
-        panel.add(numberButtons[5]);
-        panel.add(numberButtons[6]);
-        panel.add(mulButton);
-
-        panel.add(numberButtons[1]);
-        panel.add(numberButtons[2]);
-        panel.add(numberButtons[3]);
-        panel.add(subButton);
-
-        panel.add(numberButtons[0]);
-        panel.add(dotButton);
-        panel.add(equalButton);
-        panel.add(addButton);
-
-        panel.add(clearButton);
+        panel.add(numbers[7]);
+        panel.add(numbers[8]);
+        panel.add(numbers[9]);
+        panel.add(divide);
+        panel.add(numbers[4]);
+        panel.add(numbers[5]);
+        panel.add(numbers[6]);
+        panel.add(multiply);
+        panel.add(numbers[1]);
+        panel.add(numbers[2]);
+        panel.add(numbers[3]);
+        panel.add(minus);
+        panel.add(numbers[0]);
+        panel.add(dot);
+        panel.add(equal);
+        panel.add(plus);
+        panel.add(clear);
 
         add(panel, BorderLayout.CENTER);
-
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-
     @Override
     public void actionPerformed(ActionEvent e) {
-
         Object source = e.getSource();
 
+        if (source == clear) {
+            reset();
+            return;
+        }
 
-        // =========================
-        // ВВОД ЦИФР
-        // =========================
-
-        for (int i = 0; i < 10; i++) {
-
-            if (source == numberButtons[i]) {
-
-                // Если перед этим был показан результат,
-                // начинаем ввод нового числа
-                if (resultShown) {
-
+        for (int i = 0; i < numbers.length; i++) {
+            if (source == numbers[i]) {
+                if (newNumber || resultShown) {
                     display.setText("");
-
+                    newNumber = false;
                     resultShown = false;
-                    operator = '\0';
                 }
-
-                // Ограничиваем длину числа
-                if (display.getText().length() < MAX_LENGTH) {
-
-                    display.setText(
-                            display.getText() + i
-                    );
+                if (display.getText().length() < 15) {
+                    display.setText(display.getText() + i);
                 }
-
                 return;
             }
         }
 
-
-        // =========================
-        // ТОЧКА
-        // =========================
-
-        if (source == dotButton) {
-
-            if (resultShown) {
-
-                display.setText("0.");
+        if (source == dot) {
+            if (newNumber || resultShown) {
+                display.setText("");
+                newNumber = false;
                 resultShown = false;
-                operator = '\0';
-
-                return;
             }
-
-            // Нельзя поставить две точки
-            if (display.getText().contains(".")) {
-                return;
+            if (!display.getText().contains(".") && display.getText().length() < 15) {
+                if (display.getText().isEmpty() || display.getText().equals("-")) {
+                    display.setText(display.getText() + "0.");
+                } else {
+                    display.setText(display.getText() + ".");
+                }
             }
+            return;
+        }
 
-            // Если число еще не введено,
-            // получаем 0.
-            if (display.getText().isEmpty()) {
-
-                display.setText("0.");
-
-            } else if (display.getText().length() < MAX_LENGTH) {
-
-                display.setText(
-                        display.getText() + "."
-                );
+        if (source == equal) {
+            if (operation != ' ' && !newNumber && !display.getText().isEmpty()) {
+                calculate();
+                operation = ' ';
+                resultShown = true;
             }
-
             return;
         }
 
+        char selected = ' ';
+        if (source == plus) selected = '+';
+        if (source == minus) selected = '-';
+        if (source == multiply) selected = '*';
+        if (source == divide) selected = '/';
 
-        // =========================
-        // ОЧИСТКА
-        // =========================
+        if (selected == ' ') return;
 
-        if (source == clearButton) {
-
-            clearCalculator();
-
+        // Минус в начале ввода означает отрицательное число.
+        if (selected == '-' && (display.getText().isEmpty() || newNumber)) {
+            display.setText("-");
+            newNumber = false;
             return;
         }
 
+        if (display.getText().isEmpty() || display.getText().equals("-")) return;
 
-        // =========================
-        // ОПЕРАЦИИ
-        // =========================
-
-        if (source == addButton) {
-            setOperator('+');
-            return;
+        if (operation != ' ' && !newNumber) {
+            if (!calculate()) return;
+        } else {
+            firstNumber = Double.parseDouble(display.getText());
         }
 
-        if (source == subButton) {
-            setOperator('-');
-            return;
-        }
-
-        if (source == mulButton) {
-            setOperator('*');
-            return;
-        }
-
-        if (source == divButton) {
-            setOperator('/');
-            return;
-        }
-
-
-        // =========================
-        // РАВНО
-        // =========================
-
-        if (source == equalButton) {
-
-            calculateResult();
-        }
-    }
-
-
-    // Выбор арифметической операции
-    private void setOperator(char newOperator) {
-
-        // Если число еще не введено,
-        // нажатие операции ничего не делает
-        if (display.getText().isEmpty()
-                || display.getText().equals("Error")) {
-
-            return;
-        }
-
-        try {
-
-            num1 = Double.parseDouble(
-                    display.getText()
-            );
-
-            operator = newOperator;
-
-            display.setText("");
-
-            resultShown = false;
-
-        } catch (NumberFormatException ex) {
-
-            showError();
-        }
-    }
-
-
-    // Вычисление результата
-    private void calculateResult() {
-
-        // Нельзя нажать "=" без операции
-        if (operator == '\0') {
-            return;
-        }
-
-        // Нельзя вычислять без второго числа
-        if (display.getText().isEmpty()) {
-            return;
-        }
-
-        try {
-
-            double num2 =
-                    Double.parseDouble(display.getText());
-
-            double result;
-
-            switch (operator) {
-
-                case '+':
-                    result = num1 + num2;
-                    break;
-
-                case '-':
-                    result = num1 - num2;
-                    break;
-
-                case '*':
-                    result = num1 * num2;
-                    break;
-
-                case '/':
-
-                    // Деление на ноль
-                    if (num2 == 0) {
-
-                        JOptionPane.showMessageDialog(
-                                this,
-                                "Division by zero is not allowed!",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE
-                        );
-
-                        clearCalculator();
-
-                        return;
-                    }
-
-                    result = num1 / num2;
-                    break;
-
-                default:
-                    return;
-            }
-
-
-            // Проверка слишком большого результата
-            if (Double.isInfinite(result)
-                    || Double.isNaN(result)) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "The result is too large or incorrect!",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-
-                clearCalculator();
-
-                return;
-            }
-
-
-            // Красиво выводим результат
-            display.setText(formatResult(result));
-
-            resultShown = true;
-
-            // Операция закончена
-            operator = '\0';
-
-
-        } catch (NumberFormatException ex) {
-
-            showError();
-        }
-    }
-
-
-    // Убираем ненужное .0 у целых чисел
-    private String formatResult(double result) {
-
-        if (result == Math.floor(result)
-                && Math.abs(result) < 1_000_000_000_000_000L) {
-
-            return String.valueOf((long) result);
-        }
-
-        String text = String.valueOf(result);
-
-        // Защита от слишком длинного результата
-        if (text.length() > MAX_LENGTH) {
-
-            return String.format("%.8g", result);
-        }
-
-        return text;
-    }
-
-
-    // Полная очистка калькулятора
-    private void clearCalculator() {
-
-        display.setText("");
-
-        num1 = 0;
-
-        operator = '\0';
-
+        operation = selected;
+        newNumber = true;
         resultShown = false;
     }
 
+    private boolean calculate() {
+        try {
+            double secondNumber = Double.parseDouble(display.getText());
+            double result;
 
-    // Ошибка
-    private void showError() {
+            switch (operation) {
+                case '+': result = firstNumber + secondNumber; break;
+                case '-': result = firstNumber - secondNumber; break;
+                case '*': result = firstNumber * secondNumber; break;
+                case '/':
+                    if (secondNumber == 0) {
+                        showError("На ноль делить нельзя");
+                        return false;
+                    }
+                    result = firstNumber / secondNumber;
+                    break;
+                default: return false;
+            }
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Incorrect number!",
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
+            if (!Double.isFinite(result)) {
+                showError("Слишком большое число");
+                return false;
+            }
 
-        clearCalculator();
+            firstNumber = result;
+            if (result == (long) result && Math.abs(result) < 1e15) {
+                display.setText(String.valueOf((long) result));
+            } else {
+                display.setText(String.valueOf(result));
+            }
+            return true;
+        } catch (NumberFormatException ex) {
+            showError("Некорректное число");
+            return false;
+        }
     }
 
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Ошибка", JOptionPane.ERROR_MESSAGE);
+        reset();
+    }
+
+    private void reset() {
+        display.setText("");
+        firstNumber = 0;
+        operation = ' ';
+        newNumber = false;
+        resultShown = false;
+    }
 
     public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() ->
-                new SimpleCalculator()
-        );
+        SwingUtilities.invokeLater(() -> new SimpleCalculator());
     }
 }
