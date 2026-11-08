@@ -29,7 +29,7 @@ public class CountryMenu extends JFrame {
         countryBox = new JComboBox<>(countries);
 
         // Надпись для информации
-        infoLabel = new JLabel("Choose a country");
+        infoLabel = new JLabel("Australia: capital - Canberra");
 
         // Добавляем элементы в окно
         add(countryBox);
@@ -43,25 +43,25 @@ public class CountryMenu extends JFrame {
                 String country =
                         (String) countryBox.getSelectedItem();
 
-                if (country.equals("Australia")) {
+                if ("Australia".equals(country)) {
                     infoLabel.setText(
                             "Australia: capital - Canberra"
                     );
                 }
 
-                else if (country.equals("China")) {
+                else if ("China".equals(country)) {
                     infoLabel.setText(
                             "China: capital - Beijing"
                     );
                 }
 
-                else if (country.equals("England")) {
+                else if ("England".equals(country)) {
                     infoLabel.setText(
                             "England: capital - London"
                     );
                 }
 
-                else if (country.equals("Russia")) {
+                else if ("Russia".equals(country)) {
                     infoLabel.setText(
                             "Russia: capital - Moscow"
                     );
