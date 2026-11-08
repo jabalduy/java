@@ -141,11 +141,22 @@ public class RandomShapes {
         );
 
         frame.setSize(600, 500);
+        frame.setLayout(new BorderLayout(5, 5));
 
-        DrawingPanel panel =
-                new DrawingPanel();
+        // Заголовок располагаем сверху с помощью FlowLayout
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(new JLabel("20 случайных фигур"));
+        frame.add(topPanel, BorderLayout.NORTH);
 
-        frame.add(panel);
+        // Фигуры рисуются в центральной части окна
+        DrawingPanel panel = new DrawingPanel();
+        frame.add(panel, BorderLayout.CENTER);
+
+        // Информация внизу расположена в двух колонках
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 2));
+        bottomPanel.add(new JLabel("Круги и прямоугольники", JLabel.CENTER));
+        bottomPanel.add(new JLabel("Всего фигур: 20", JLabel.CENTER));
+        frame.add(bottomPanel, BorderLayout.SOUTH);
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
