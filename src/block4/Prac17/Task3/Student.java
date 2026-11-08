@@ -1,4 +1,4 @@
-package block3.Prac17.Task2;
+package block4.Prac17.Task3;
 
 import java.util.Scanner;
 
@@ -8,7 +8,6 @@ public class Student {
     private int age;
 
     Student next;
-    Student prev;
 
     public void read(Scanner scanner) {
         System.out.print("Введите имя: ");

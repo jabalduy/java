@@ -1,4 +1,4 @@
-package block3.Prac17.Task3;
+package block4.Prac17.Task3;
 
 import java.util.Scanner;
 

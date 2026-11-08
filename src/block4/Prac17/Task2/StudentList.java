@@ -1,4 +1,4 @@
-package block3.Prac17.Task2;
+package block4.Prac17.Task2;
 
 public class StudentList {
 

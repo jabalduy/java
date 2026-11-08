@@ -1,4 +1,4 @@
-package block3.Prac9;
+package block4.Prac9;
 
 public class Student {
 
