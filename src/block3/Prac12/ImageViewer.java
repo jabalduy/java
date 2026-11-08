@@ -1,6 +1,7 @@
 package block3.Prac12;
 
 import javax.swing.*;
+import java.awt.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -29,7 +30,16 @@ public class ImageViewer {
                 JLabel label = new JLabel(new ImageIcon(image));
                 JFrame frame = new JFrame("Image Viewer");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.add(new JScrollPane(label));
+                frame.setLayout(new BorderLayout(5, 5));
+
+                // Изображение находится в центре
+                frame.add(new JScrollPane(label), BorderLayout.CENTER);
+
+                // Имя файла показываем внизу
+                JPanel bottomPanel = new JPanel(new FlowLayout());
+                bottomPanel.add(new JLabel("Файл: " + new File(imagePath).getName()));
+                frame.add(bottomPanel, BorderLayout.SOUTH);
+
                 frame.setSize(Math.min(image.getWidth() + 40, 900),
                         Math.min(image.getHeight() + 60, 700));
                 frame.setLocationRelativeTo(null);
