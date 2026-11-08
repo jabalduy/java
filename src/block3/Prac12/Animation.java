@@ -18,6 +18,7 @@ public class Animation extends JPanel {
 
     private int frameWidth;
     private int frameHeight;
+    private JLabel frameLabel = new JLabel("Кадр: 1 из 4", JLabel.CENTER);
 
     public Animation(String imagePath) throws IOException {
 
@@ -42,12 +43,17 @@ public class Animation extends JPanel {
                 currentFrame = 0;
             }
 
+            frameLabel.setText("Кадр: " + (currentFrame + 1) + " из " + frameCount);
             repaint();
         });
 
         timer.start();
     }
 
+
+    public JLabel getFrameLabel() {
+        return frameLabel;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -88,7 +94,15 @@ public class Animation extends JPanel {
                 Animation animation = new Animation(args[0]);
                 JFrame frame = new JFrame("Animation");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.add(animation);
+                frame.setLayout(new BorderLayout(5, 5));
+                frame.add(animation, BorderLayout.CENTER);
+
+                // Внизу отображается информация об анимации
+                JPanel bottomPanel = new JPanel(new GridLayout(1, 2));
+                bottomPanel.add(new JLabel("Интервал: 200 мс", JLabel.CENTER));
+                bottomPanel.add(animation.getFrameLabel());
+                frame.add(bottomPanel, BorderLayout.SOUTH);
+
                 frame.setSize(500, 400);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
