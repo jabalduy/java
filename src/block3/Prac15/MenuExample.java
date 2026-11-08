@@ -3,6 +3,10 @@ package block3.Prac15;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
 
 public class MenuExample extends JFrame {
 
@@ -96,11 +100,24 @@ public class MenuExample extends JFrame {
 
         saveItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Text saved!"
-                );
+                JFileChooser chooser = new JFileChooser();
+                if (chooser.showSaveDialog(MenuExample.this) == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+                    if (file.exists()) {
+                        int answer = JOptionPane.showConfirmDialog(
+                                MenuExample.this, "Перезаписать файл?", "Сохранение",
+                                JOptionPane.YES_NO_OPTION);
+                        if (answer != JOptionPane.YES_OPTION) return;
+                    }
+                    try {
+                        Files.writeString(file.toPath(), textArea.getText(), StandardCharsets.UTF_8);
+                        JOptionPane.showMessageDialog(MenuExample.this, "Текст сохранён");
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(MenuExample.this,
+                                "Не удалось сохранить файл: " + ex.getMessage(),
+                                "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         });
 
