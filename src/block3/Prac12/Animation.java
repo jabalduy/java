@@ -19,20 +19,18 @@ public class Animation extends JPanel {
     private int frameWidth;
     private int frameHeight;
 
-    public Animation(String imagePath) {
+    public Animation(String imagePath) throws IOException {
 
-        try {
-            // Загружаем изображение
-            image = ImageIO.read(new File(imagePath));
-
-            // Если кадры расположены горизонтально
-            frameWidth = image.getWidth() / frameCount;
-            frameHeight = image.getHeight();
-
-        } catch (IOException e) {
-            System.out.println("Ошибка загрузки изображения");
-            e.printStackTrace();
+        image = ImageIO.read(new File(imagePath));
+        if (image == null) {
+            throw new IOException("Файл не является изображением");
         }
+        if (image.getWidth() < frameCount || image.getWidth() % frameCount != 0) {
+            throw new IOException("Ширина изображения должна делиться на 4");
+        }
+
+        frameWidth = image.getWidth() / frameCount;
+        frameHeight = image.getHeight();
 
         // Таймер: меняем кадр каждые 200 миллисекунд
         Timer timer = new Timer(200, e -> {
@@ -67,7 +65,11 @@ public class Animation extends JPanel {
             );
 
             // Рисуем кадр
-            g.drawImage(frame, 50, 50, null);
+            int width = Math.min(frameWidth, getWidth());
+            int height = Math.min(frameHeight, getHeight());
+            if (width <= 0 || height <= 0) return;
+            g.drawImage(frame, (getWidth() - width) / 2,
+                    (getHeight() - height) / 2, width, height, null);
         }
     }
 
@@ -81,20 +83,20 @@ public class Animation extends JPanel {
             return;
         }
 
-        JFrame frame = new JFrame("Animation");
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        Animation animation =
-                new Animation(args[0]);
-
-        frame.add(animation);
-
-        frame.setSize(500, 400);
-
-        frame.setLocationRelativeTo(null);
-
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Animation animation = new Animation(args[0]);
+                JFrame frame = new JFrame("Animation");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.add(animation);
+                frame.setSize(500, 400);
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage(),
+                        "Ошибка загрузки", JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 }
 
